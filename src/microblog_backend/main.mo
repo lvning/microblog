@@ -7,6 +7,7 @@ actor {
   type Message = {
     text: Text;
     time: Time.Time;
+    author: ?Text;
   };
 
   public type Microblog = actor {
@@ -15,6 +16,18 @@ actor {
     post: shared (Text) -> async ();
     posts: shared query (Time.Time) -> async [Message];
     timeline: shared (Time.Time) -> async [Message];
+    set_name: shared (Text) -> async ();
+    get_name: shared query () -> async (Text);
+  };
+
+  stable var myname: ?Text = null;
+
+  public shared func set_name(name: Text) : async () {
+    myname := ?name;
+  };
+
+  public shared query func get_name() : async ?Text {
+    myname
   };
 
   stable var followed: List.List<Principal> = List.nil();
@@ -29,11 +42,12 @@ actor {
 
   stable var messages : List.List<Message> = List.nil();
 
-  public shared (msg) func post(text: Text) : async () {
-    assert(Principal.toText(msg.caller) == "5gfoz-4os5w-a4zlb-y72zs-6cyxx-z7dny-t6iuw-qbd2q-q2vvg-tdcp5-rae");
+  public shared (msg) func post(otp: Text, text: Text) : async () {
+    assert(otp == "123456");
     let newMsg = {
       text = text;
       time = Time.now();
+      author = myname;
     };
     messages := List.push(newMsg, messages)
   };
