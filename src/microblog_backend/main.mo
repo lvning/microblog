@@ -13,6 +13,7 @@ actor {
   public type Microblog = actor {
     follow: shared(Principal) -> async ();
     follows: shared query () -> async [Principal];
+    reset_follow: shared() -> async ();
     post: shared (Text) -> async ();
     posts: shared query (Time.Time) -> async [Message];
     timeline: shared (Time.Time) -> async [Message];
@@ -26,7 +27,7 @@ actor {
     myname := ?name;
   };
 
-  public shared query func get_name() : async ?Text {
+  public shared func get_name() : async ?Text {
     myname
   };
 
@@ -38,6 +39,10 @@ actor {
 
   public shared query func follows() : async [Principal] {
     List.toArray(followed)
+  };
+
+  public shared func reset_follow() : async () {
+    followed := List.nil();
   };
 
   stable var messages : List.List<Message> = List.nil();
